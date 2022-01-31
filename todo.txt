@@ -1,0 +1,12 @@
+DONE
+----
+compilation
+reloading on change
+
+TODO
+----
+readme
+help
+butt load of options
+spawn editor process
+support for user to import assest.

@@ -1,0 +1,24 @@
+{
+  "name": "editmd",
+  "version": "1.0.0",
+  "description": "edit md with live preview in your favorite editor.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon src/index.js test.md"
+  },
+  "keywords": [
+    "markdown",
+    "live preview",
+    "editor"
+  ],
+  "author": "Ayushman Tripathy",
+  "license": "MIT",
+  "dependencies": {
+    "btss": "1.1.0",
+    "chokidar": "^3.5.3",
+    "express": "^4.17.2",
+    "marked": "^4.0.12",
+    "socket.io": "^4.4.1"
+  }
+}

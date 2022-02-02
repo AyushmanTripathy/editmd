@@ -1,6 +1,6 @@
 {
   "name": "editmd",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "edit md with live preview in your favorite editor.",
   "main": "src/index.js",
   "type": "module",
@@ -16,6 +16,7 @@
     "editor"
   ],
   "author": "Ayushman Tripathy",
+  "homepage": "https://github.com/AyushmanTripathy/editmd",
   "license": "MIT",
   "dependencies": {
     "btss": "1.1.0",

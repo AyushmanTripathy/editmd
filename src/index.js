@@ -55,6 +55,8 @@ async function init({ words, options }) {
   if (!existsSync(path)) error(`no such file ${path}`);
 
   const app = express();
+  app.use("/", express.static(resolve(process.cwd())));
+
   const html = readFileSync(relativePath("assets/index.html"), "utf-8");
 
   app.get("/", function (req, res) {
@@ -66,6 +68,7 @@ async function init({ words, options }) {
   app.get("/script.js", (req, res) => {
     res.sendFile(relativePath("assets/script.js"));
   });
+
   const server = createServer(app);
   const socket = new Server(server);
   server.listen(port, () => {
@@ -81,7 +84,7 @@ async function init({ words, options }) {
   if (launch_browser) openBrowser(`http://localhost:${port}`);
   if (launch_editor) {
     await openEditor(path, launch_editor);
-    socket.emit("exit")
+    socket.emit("exit");
     process.exit();
   }
 }
@@ -123,6 +126,7 @@ function openEditor(path, editor) {
   child.on("data", function (data) {
     process.stdout.pipe(data);
   });
+
   return new Promise((resolve, reject) => {
     child.on("exit", (e, code) => {
       log(yellow("Exiting..."));

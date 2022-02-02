@@ -2,11 +2,7 @@ DONE
 ----
 compilation
 reloading on change
+support for user to import assest.
 
 TODO
 ----
-readme
-help
-butt load of options
-spawn editor process
-support for user to import assest.

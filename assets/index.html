@@ -40,8 +40,9 @@
     <article class="markdown-body">%markdown%</article>
     <script src="/script.js"></script>
     <script defer>
-        const socket = io();
-        socket.on("reload",() => window.location.reload())
+      const socket = io();
+      socket.on("reload", () => window.location.reload());
+      socket.on("exit", () => window.close());
     </script>
   </body>
 </html>

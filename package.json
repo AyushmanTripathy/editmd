@@ -4,7 +4,7 @@
   "description": "edit md with live preview in your favorite editor.",
   "main": "src/index.js",
   "type": "module",
-  "bin":{
+  "bin": {
     "editmd": "src/index.js"
   },
   "scripts": {
@@ -21,6 +21,7 @@
   "dependencies": {
     "btss": "1.1.0",
     "chokidar": "^3.5.3",
+    "cors": "^2.8.5",
     "express": "^4.17.2",
     "marked": "^4.0.12",
     "socket.io": "^4.4.1"

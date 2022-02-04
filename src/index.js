@@ -9,6 +9,7 @@ import { spawn } from "child_process";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import { watch } from "chokidar";
+import cors from "cors"
 
 const error = (s) => {
   throw red("[ERROR] ") + s;
@@ -56,6 +57,7 @@ async function init({ words, options }) {
 
   const app = express();
   app.use("/", express.static(resolve(process.cwd())));
+  app.use(cors())
 
   const html = readFileSync(relativePath("assets/index.html"), "utf-8");
 

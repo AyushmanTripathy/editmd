@@ -1,6 +1,6 @@
 {
   "name": "editmd",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "edit md with live preview in your favorite editor.",
   "main": "src/index.js",
   "type": "module",

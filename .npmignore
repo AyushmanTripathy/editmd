@@ -1,3 +1,8 @@
-test.md
-todo.txt
-.gitignore
+*
+
+!help.txt
+!package.json
+!README.md
+!LICENSE
+!src/*
+!assets/*

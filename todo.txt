@@ -1,5 +1,6 @@
 DONE
 ----
+replace socket.io with WebSocket
 compilation
 reloading on change
 support for user to import assest.

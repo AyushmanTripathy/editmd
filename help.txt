@@ -1,9 +1,9 @@
-EDITMD
-------
+------------
 edit md with live preview in your favorite editor.
 
 options
   h : help
+  v : version
   e : specify the editor to launch. defaults to $EDITOR or vim.
   p : specify the port. defaults to 8080.
   b : open localhost in your default browser.

@@ -38,11 +38,13 @@
   </head>
   <body>
     <article class="markdown-body">%markdown%</article>
-    <script src="/script.js"></script>
     <script defer>
-      const socket = io();
-      socket.on("reload", () => window.location.reload());
-      socket.on("exit", () => window.close());
+      const ws = new WebSocket("ws://localhost:8882");
+      console.log("%cEDITMD watching...", "font-weight: 800;");
+      ws.addEventListener("message", ({ data }) => {
+        if (data == "reload") window.location.reload();
+        else if (data == "exit") window.close();
+      });
     </script>
   </body>
 </html>

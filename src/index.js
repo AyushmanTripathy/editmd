@@ -6,10 +6,10 @@ import { resolve } from "path";
 import { red, green, yellow } from "btss";
 import express from "express";
 import { spawn } from "child_process";
-import { Server } from "socket.io";
+import { WebSocketServer } from "ws";
 import { createServer } from "http";
 import { watch } from "chokidar";
-import cors from "cors"
+import cors from "cors";
 
 const error = (s) => {
   throw red("[ERROR] ") + s;
@@ -25,6 +25,7 @@ try {
 
 async function init({ words, options }) {
   let port = 8080;
+  const ws_port = 8882;
   let verbose = true;
   let launch_editor = false;
   let launch_browser = false;
@@ -39,9 +40,9 @@ async function init({ words, options }) {
         port = options[option];
         break;
       case "h":
-        help();
-        process.exit();
-        break;
+        return help();
+      case "v":
+        return log(version())
       case "b":
         launch_browser = true;
         break;
@@ -57,7 +58,7 @@ async function init({ words, options }) {
 
   const app = express();
   app.use("/", express.static(resolve(process.cwd())));
-  app.use(cors())
+  app.use(cors());
 
   const html = readFileSync(relativePath("assets/index.html"), "utf-8");
 
@@ -67,26 +68,23 @@ async function init({ words, options }) {
   app.get("/style.css", (req, res) => {
     res.sendFile(relativePath("assets/style.css"));
   });
-  app.get("/script.js", (req, res) => {
-    res.sendFile(relativePath("assets/script.js"));
-  });
 
-  const server = createServer(app);
-  const socket = new Server(server);
-  server.listen(port, () => {
+  app.listen(port, () => {
     if (verbose) log(`listening on ${port}`);
   });
 
+  const wss = new WebSocketServer({ port: ws_port });
   watch(path, {
     persistent: true,
   }).on("change", (path) => {
     if (verbose) log(green("change dectected."));
-    socket.emit("reload");
+    wss.clients.forEach((ws) => ws.send("reload"));
   });
+
   if (launch_browser) openBrowser(`http://localhost:${port}`);
   if (launch_editor) {
     await openEditor(path, launch_editor);
-    socket.emit("exit");
+    wss.clients.forEach((ws) => ws.send("exit"));
     process.exit();
   }
 }
@@ -167,5 +165,10 @@ function relativePath(path) {
 }
 
 function help() {
+  log("EDITMD " + version());
   log(readFileSync(relativePath("help.txt"), "utf-8"));
+}
+
+function version() {
+  return JSON.parse(readFileSync(relativePath("package.json"))).version;
 }

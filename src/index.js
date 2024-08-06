@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { parse } from "marked";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import { resolve } from "path";
 import { red, green, yellow } from "btss";
 import express from "express";
@@ -9,6 +9,7 @@ import { spawn } from "child_process";
 import { WebSocketServer } from "ws";
 import { createServer } from "http";
 import { watch } from "chokidar";
+import { tmpdir } from "os";
 import cors from "cors";
 
 const error = (s) => {
@@ -29,6 +30,7 @@ async function init({ words, options }) {
   let verbose = true;
   let launch_editor = false;
   let launch_browser = false;
+  let watch_file = false;
 
   for (const option in options) {
     switch (option) {
@@ -42,9 +44,12 @@ async function init({ words, options }) {
       case "h":
         return help();
       case "v":
-        return log(version())
+        return log(version());
       case "b":
         launch_browser = true;
+        break;
+      case "w":
+        watch_file = true;
         break;
       default:
         error(`unknown option ${option}. use -h to know more.`);
@@ -56,37 +61,51 @@ async function init({ words, options }) {
   const path = resolve(process.cwd(), words[0]);
   if (!existsSync(path)) error(`no such file ${path}`);
 
-  const app = express();
-  app.use("/", express.static(resolve(process.cwd())));
-  app.use(cors());
-
   const html = readFileSync(relativePath("assets/index.html"), "utf-8");
+  let wss;
 
-  app.get("/", function (req, res) {
-    res.send(html.replace("%markdown%", compile(path)));
-  });
-  app.get("/style.css", (req, res) => {
-    res.sendFile(relativePath("assets/style.css"));
-  });
+  if (watch_file) {
 
-  app.listen(port, () => {
-    if (verbose) log(`listening on ${port}`);
-  });
+    // with reloading
+    const app = express();
+    app.use("/", express.static(resolve(process.cwd())));
+    app.use(cors());
 
-  const wss = new WebSocketServer({ port: ws_port });
-  watch(path, {
-    persistent: true,
-  }).on("change", (path) => {
-    if (verbose) log(green("change dectected."));
-    wss.clients.forEach((ws) => ws.send("reload"));
-  });
+    app.get("/", function (req, res) {
+      res.send(html.replace("%markdown%", compile(path)));
+    });
 
-  if (launch_browser) openBrowser(`http://localhost:${port}`);
-  if (launch_editor) {
+    app.listen(port, () => {
+      if (verbose) log(`listening on ${port}`);
+    });
+    wss = new WebSocketServer({ port: ws_port });
+    watch(path, {
+      persistent: true,
+    }).on("change", (path) => {
+      if (verbose) log(green("change dectected."));
+      wss.clients.forEach((ws) => ws.send("reload"));
+    });
+  } else {
+
+    // without reloading
+    const tmpHTMLPath = resolve(tmpdir(), randomHash() + ".html");
+    writeFileSync(tmpHTMLPath, html.replace("%markdown%", compile(path)), "utf-8");
+    openBrowser("file://" + tmpHTMLPath);
+  }
+
+  if (watch_file && launch_browser) openBrowser(`http://localhost:${port}`);
+  if (watch_file && launch_editor) {
     await openEditor(path, launch_editor);
-    wss.clients.forEach((ws) => ws.send("exit"));
+    if (watch_file) wss.clients.forEach((ws) => ws.send("exit"));
     process.exit();
   }
+}
+
+function randomHash() {
+  let s = "";
+  for (let i = 0; i < 5; i++)
+    s += String.fromCharCode(Math.floor(Math.random() * 26 + 97));
+  return s;
 }
 
 function compile(path) {
@@ -94,7 +113,7 @@ function compile(path) {
 }
 
 function openBrowser(link) {
-  let command = "xdg-open";
+  let command = process.env.BROWSER ?? "xdg-open";
   switch (process.platform) {
     case "darwin":
       command = "open";

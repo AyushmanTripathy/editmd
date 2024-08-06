@@ -4,8 +4,10 @@ edit md with live preview in your favorite editor.
 options
   h : help
   v : version
+  w : watch file for hot reloading
   e : specify the editor to launch. defaults to $EDITOR or vim.
   p : specify the port. defaults to 8080.
-  b : open localhost in your default browser.
+  b : open browser. defaults to $BROWSER or default browser
 
 thank you for using editmd.
+repo: https://github.com/AyushmanTripathy/editmd
